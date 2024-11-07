@@ -1,0 +1,125 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Media;
+using System.Windows.Forms;
+using NAudio.Wave;
+
+namespace Music_Player
+{
+    public partial class Form1 : Form
+    {
+        private List<string> songs;
+        private IWavePlayer waveOut; // Use IWavePlayer to play audio
+        private AudioFileReader audioFileReader; // Use AudioFileReader to read MP3 files
+        private int currentSongIndex;
+
+        public Form1()
+        {
+            InitializeComponent();
+            LoadSongs();
+            PlaySelectedSong();
+
+        }
+
+        private void LoadSongs()
+        {
+            // Get all MP3 files from the Downloads folder
+            string downloadsPath = @"C:\Users\Vivek kumar\Downloads";
+            songs = Directory.GetFiles(downloadsPath, "*.mp3").ToList();
+
+            // Populate the ListBox with song names
+            foreach (var song in songs)
+            {
+                listBox1.Items.Add(Path.GetFileName(song));
+            }
+        }
+
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+            if (listBox1.SelectedIndex != -1)
+            {
+                currentSongIndex = listBox1.SelectedIndex;
+
+                PlaySelectedSong();
+            }
+        }
+
+        private void PlaySelectedSong()
+        {
+            //
+            string songName = songs[currentSongIndex].ToString();
+            songName = Path.GetFileName(songName);
+            label1.Text = songName;
+            //
+
+            if (waveOut != null)
+            {
+                waveOut.Stop();
+                waveOut.Dispose();
+            }
+
+            string selectedSongPath = songs[currentSongIndex];
+            waveOut = new WaveOutEvent(); // Initialize the audio player
+            audioFileReader = new AudioFileReader(selectedSongPath); // Read the selected MP3 file
+            waveOut.Init(audioFileReader); // Initialize the player with the audio file
+            waveOut.Play(); // Play the audio
+
+        }
+
+        private void previous_Click(object sender, EventArgs e)
+        {
+            if (currentSongIndex > 0)
+            {
+                currentSongIndex--;
+                listBox1.SelectedIndex = currentSongIndex;
+            }
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (waveOut != null)
+            {
+                if (waveOut.PlaybackState == PlaybackState.Playing)
+                {
+                    waveOut.Pause(); // Pause if currently playing
+
+
+                }
+                else
+                {
+                    waveOut.Play(); // Play if currently paused
+                }
+            }
+
+        }
+
+        private void Next_Click(object sender, EventArgs e)
+        {
+            if (currentSongIndex < listBox1.Items.Count - 1)
+            {
+                currentSongIndex++;
+                listBox1.SelectedIndex = currentSongIndex;
+            }
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void opt(object sender, EventArgs e)
+        {
+            
+        }
+    }
+}
